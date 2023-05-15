@@ -39,27 +39,33 @@ contract StructureOfAContract {
      * @dev イベント定義
      * EVM(Ethereum Virtual Machine)のロギング機能とのインタフェース
      */
-
+    event SetData(address fromAddr, uint data);
 
     /** 
      * @dev error定義
      * 失敗の状況に対して説明的な名前とデータを定義
      * revert 文で使用することができる
      */
-
+    error NotOwner(address owner, address sender);
 
     /** 
      * @dev constructor定義
      * コントラクトの作成時に実行され、コントラクトの初期化コードを実行することができる
      */
-
-
+    constructor() {
+        owner = msg.sender;
+    }
 
     /** 
      * @dev Functon Modifier定義
      * 宣言的な方法でファンクションのセマンティクス（意味づけ）を修正するために使用する
      */
-
+    modifier onlyOwner() {
+        if (owner != msg.sender) {
+            revert NotOwner(owner, msg.sender);
+        }
+        _;
+    }
 
     /** 
      * @dev Function定義
@@ -72,8 +78,14 @@ contract StructureOfAContract {
      *                ガス代としてEtherを消費する
      */
     // ファンクション定義 Call
- 
+    function getData() public view returns (uint) {
+        return data;
+    }
 
     // ファンクション定義 Transaction
-
+    function setData(uint data_) public onlyOwner returns (uint) {
+        data = data_;
+        emit SetData(msg.sender, data);
+        return data;
+    }
 }
