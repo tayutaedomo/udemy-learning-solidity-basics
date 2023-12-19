@@ -16,11 +16,19 @@ contract Structs {
         address addr;
     }
 
+    struct Member {
+        address addr;
+        string name;
+        uint amount;
+    }
+
     Account public account =
         Account(1, 0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199);
 
     // Account public account =
     //     Account({addr: 0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199, no: 1});
+
+    Member[] public members;
 
     function getAccount() public view returns (uint) {
         return account.no;
@@ -28,5 +36,28 @@ contract Structs {
 
     function setAccount() external {
         account.addr = msg.sender;
+    }
+
+    function memberPush(
+        address addr_,
+        string calldata name_,
+        uint amount_
+    ) external {
+        Member memory mem = Member({addr: addr_, name: name_, amount: amount_});
+        members.push(mem);
+    }
+
+    function getMember(uint idx) external view returns (Member memory) {
+        // struct (tupple) を返す
+        return members[idx];
+    }
+
+    function changeName(uint idx, string calldata newName_) external {
+        // struct のメンバーへのアクセス
+        members[idx].name = newName_;
+    }
+
+    function getName(uint idx) external view returns (string memory) {
+        return members[idx].name;
     }
 }
