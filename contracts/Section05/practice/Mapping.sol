@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.17;
 
-/** 
+/**
  * @title Mapping Type を学ぼう
  */
 contract Mapping {
@@ -14,9 +14,39 @@ contract Mapping {
      * ValueTypeは、マッピング、配列、構造体を含む任意の型にすることができます。
      */
 
-
+    uint id;
     // Mapping型定義
-    
-    // Mapping型の_valueTypeにMapping型も指定可能
+    mapping(uint => address) public member;
 
+    struct Profile {
+        string name;
+        uint level;
+    }
+
+    // Mapping型の_valueTypeにMapping型も指定可能
+    mapping(uint => mapping(address => Profile)) memberProfile;
+
+    function addMember() public {
+        member[id] = msg.sender;
+        id++;
+    }
+
+    function getMemberProfile(uint id_) public view returns (Profile memory) {
+        return memberProfile[id_][msg.sender];
+    }
+
+    function setMemberProfile(
+        uint id_,
+        string memory name_,
+        uint level_
+    ) public {
+        require(member[id_] == msg.sender);
+        memberProfile[id_][msg.sender] = Profile(name_, level_);
+    }
+
+    function delMemberProfile(uint id_) public {
+        require(member[id_] == msg.sender);
+        // delete で要素を削除
+        delete memberProfile[id_][msg.sender];
+    }
 }
