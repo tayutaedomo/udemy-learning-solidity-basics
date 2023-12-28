@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.17;
 
-/** 
+/**
  * @title BlockProperties を学ぼう
  * グローバルな名前空間に常に存在し、主にブロックチェーンに関する情報を提供したり、
  * 汎用的なユーティリティ関数として使用される特殊な変数や関数がある
@@ -13,11 +13,22 @@ pragma solidity ^0.8.17;
  */
 contract BlockProperties {
     // チェーンID
+    function getChainId() external view returns (uint) {
+        return block.chainid;
+    }
 
     // ブロックナンバー
+    function getBlockNumber() external view returns (uint) {
+        return block.number;
+    }
 
     // ブロックハッシュ
+    function getBlockHash(uint blockNum_) external view returns (bytes32) {
+        return blockhash(blockNum_);
+    }
 
     // ブロックタイムスタンプ UNIXエポック（1970/1/1 00:00:00）からの秒数
-
+    function getTimeStamp() external view returns (uint) {
+        return block.timestamp;
+    }
 }
