@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.17;
 
-/** 
+/**
  * @title Error handling: Assert, Require, Revertを学ぼう
- * 
+ *
  * Solidity はエラーハンドリングとして状態を元に戻す例外処理を実行できる
  * 例外処理では、トランザクションで加えられたすべての状態変更を元に戻し、呼び出し元にエラーを知らせることが可能。
  * 例外処理には、エラーの理由やパニック時の例外コードというデータを呼び出し元に返すことができる。
@@ -20,29 +20,19 @@ pragma solidity ^0.8.17;
  *  - Panic(uint256)型のエラーを生成を発生させる : Assert
  */
 
-/**
- * @dev
- *  errorステートメントでエラー定義が可能。継承できるが、オーバーライドやオーバーロードは不可。
- *  このコメントにエラー理由を記述できる。
- *  このコメントはBlockchainに記録されないので、安価なエラー報告機能として活用できるメリットがある
- *  
- *  
- */
-
-
 contract AssertRequireRevert {
     /**
-　　    * @dev assertは、Panic(uint256)型のエラーを生成
+     * @dev assertは、Panic(uint256)型のエラーを生成
      * Assert は、内部エラー(internal error)のテストと不変性のチェックにのみ使用します。
-    　　* 内部エラー例）オーバーフロー検出や配列に対してk[-1]など負のインデックスでアクセスしたりなどの内部的なエラー(internal error)で使用すべき
- 　　   * 正しく機能するコードは、たとえ無効な外部入力(例：引数の値)があったとしても、決してパニックを発生させるべきではない
+     * 内部エラー例）オーバーフロー検出や配列に対してk[-1]など負のインデックスでアクセスしたりなどの内部的なエラー(internal error)で使用すべき
+     * 正しく機能するコードは、たとえ無効な外部入力(例：引数の値)があったとしても、決してパニックを発生させるべきではない
      * 例外処理実行までに消費したガスは戻ってこないが、未消費のガスは戻る。
      *  「呼び出しに使用可能なすべてのガスを消費していましたが、Solidity 0.8.0 以降はそのようなことはありません。」
      *  以下のNoteを参照のこと
      *   https://docs.soliditylang.org/en/v0.8.17/control-structures.html#panic-via-assert-and-error-via-require
      *
      *
-    　　* パニック例外コード一覧
+     * パニック例外コード一覧
      *   https://docs.soliditylang.org/en/v0.8.17/control-structures.html#panic-via-assert-and-error-via-require
      * パニック例外は，次のような場合に発生する。エラーデータとともに提供されるエラーコードは、パニックの種類を示す。
      *
@@ -57,28 +47,58 @@ contract AssertRequireRevert {
      * 0x41 : メモリを過剰に割り当てたり、大きすぎる配列を作成した場合
      * 0x51 : 内部関数型のゼロ初期化変数を呼び出した場合
      */
-
-
+    uint public price = 1000;
 
     /**
-　　    * @dev requireは、データを持たずにエラーを発生させるか、Error(string)型のエラーを発生させるかのどちらか。
-    　　* 引数チェックなど実行時まで検出できない有効な条件を確保するために使用する
- 　　   * 外部コントラクトの呼び出しによる入力や戻り値に対する条件チェックにも使うことがある
-     * 例外処理実行までに消費したガスは戻ってこないが、未消費のガスは戻る。
-    　　*/
+     * @dev
+     *  errorステートメントでエラー定義が可能。継承できるが、オーバーライドやオーバーロードは不可。
+     *  このコメントにエラー理由を記述できる。
+     *  このコメントはBlockchainに記録されないので、安価なエラー報告機能として活用できるメリットがある
+     *  @param a_ number to be divided
+     *  @param b_ divisor
+     */
+    error DivError(uint a_, uint b_);
 
-    /** 
+    function assertF() external {
+        for (uint i = 0; i < 100; i++) {
+            price = i;
+        }
+        assert(price == 1000);
+    }
+
+    /**
+     * @dev requireは、データを持たずにエラーを発生させるか、Error(string)型のエラーを発生させるかのどちらか。
+     * 引数チェックなど実行時まで検出できない有効な条件を確保するために使用する
+     * 外部コントラクトの呼び出しによる入力や戻り値に対する条件チェックにも使うことがある
+     * 例外処理実行までに消費したガスは戻ってこないが、未消費のガスは戻る。
+     */
+    function requireF(uint n) external pure returns (uint) {
+        require(n <= 10, "Out of range about 10");
+        uint power = n ** 2;
+        return power;
+    }
+
+    /**
      * @dev revert()はError(string)型のエラーを発生させる
      * revertステートメントとrevertファンクションを使用して、直接revertをトリガーできる
      * 例外処理実行までに消費したガスは戻ってこないが、未消費のガスは戻る。
-     */ 
-     
+     */
+    function revertF(uint a, uint b) external pure returns (uint, uint, uint) {
+        if (b == 0) {
             // revertファンクション
             // a:1, b:0
-
-            // revertステートメント。errorステートメントとセット
+            revert("Enter a number greater than 0");
+        } else if (a == 0) {
+            // revertステートメント
             // a:0, b:1
+            revert DivError(a, b);
+        } else {
+            return (a, b, a / b);
+        }
 
-            // a:10, b:2
+        // revertステートメント。errorステートメントとセット
+        // a:0, b:1
 
+        // a:10, b:2
+    }
 }
